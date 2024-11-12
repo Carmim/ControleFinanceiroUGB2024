@@ -43,7 +43,59 @@ namespace Apoio.Controllers
             _context.SaveChanges();
             return RedirectToAction("Index");
         }
-       
+        //Edit Get
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var aposta = await _context.Apostas.FindAsync(id);
+            if (aposta == null)
+            {
+                return NotFound();
+            }
+            ViewData["ApostadorId"] = new SelectList(_context.Apostadores, "Id", "Nome");
+            return View(aposta);
+        }
+        //Edit POST
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("Id, Valor, PrevisaoDeGanho, Vencedora, ApostadorId")] Aposta aposta)
+        {
+            if (id != aposta.Id)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(aposta);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!ApostaExists(aposta.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            return View(aposta);
+        }
+        private bool ApostaExists(int id)
+        {
+            return _context.Apostas.Any(e => e.Id == id);
+        }
+
     }
 }
     
