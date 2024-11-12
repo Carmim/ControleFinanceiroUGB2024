@@ -20,6 +20,7 @@ namespace Apoio.Controllers
             var apostaContext = _context.Apostas.Include(ap => ap.Apostador);
             return View(apostaContext.ToList());
         }
+        //Create
         public IActionResult Create()
         {
             ViewData["ApostadorId"] = new SelectList(_context.Apostadores, "Id", "Nome");
@@ -94,6 +95,54 @@ namespace Apoio.Controllers
         private bool ApostaExists(int id)
         {
             return _context.Apostas.Any(e => e.Id == id);
+        }
+        //Details
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var aposta = await _context.Apostas
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (aposta == null)
+            {
+                return NotFound();
+            }
+
+            return View(aposta);
+        }
+        //Delete GET
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var aposta = await _context.Apostas
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (aposta == null)
+            {
+                return NotFound();
+            }
+
+            return View(aposta);
+        }
+        //Delete POST
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var aposta = await _context.Apostas.FindAsync(id);
+            if (aposta != null)
+            {
+                _context.Apostas.Remove(aposta);
+            }
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
 
     }
